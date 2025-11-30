@@ -173,6 +173,29 @@ def train(training_data):
 def test(test_instance, training_data):
     # Calculate distances of current point from all neighbors
     pred_class_label = None
+    dists = []  # Store distances
+    
+    index = 0
+    # Loop through all instances of training data
+    for x_i in training_data:
+        # Calculate distance of current point from test instance
+        dist = np.linalg.norm(test_instance - x_i, ord=2)
+
+        # Trace distance
+        print(f"The feature at index {index} has a distance of {dist} from test instance.")
+
+        # Add distance and current index to list
+        dists.append(dist, index)
+        index += 1
+
+    # Sort to find shortest distance
+    dists.sort()
+    # Get index of nearest neighbor
+    nn_index = dists[1]
+    pred_class_label = training_data[nn_index][0]
+
+    # Trace prediced label
+    print(f"The predicted label is: {pred_class_label}")
 
     return pred_class_label
 
@@ -190,7 +213,6 @@ def nn_classifier(training_data, numFeatures, algChoice, test_instance):
 
     # Train and test the model to find unknown point
     train(training_data)
-    print(training_data)
     pred_label = test(test_instance, training_data)
 
     return pred_label
@@ -216,7 +238,7 @@ def main():
 
     # Call Classifier Evaluation Function (for now just testing classifier accuracy with specific feature subset)
     # classEvalFunc()
-    nn_classifier(small_data, numFeatures, algChoice, 1)
+    # nn_classifier(small_data, numFeatures, algChoice, 1)
 
 # Calls main
 if __name__ == "__main__":
