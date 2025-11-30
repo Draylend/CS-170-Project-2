@@ -1,7 +1,12 @@
+# Works Cited:
+# https://numpy.org/doc/stable/reference/generated/numpy.loadtxt.html
+#   - Use numpy library documentation for learning how to read in text files
+
+import numpy as np      # For distance calc and reading text file
 import random as rand   # For random evaluation values
 
 # Evaluation Function: Leave-one-out validation for checking accuracy
-def evalFunc():
+def featEvalFunc():
     # Stub function - only returns random value
     val = rand.random() * 100
     accuracy = round(val, 2)
@@ -13,7 +18,7 @@ def forwardSelection(numFeatures):
     globalHighAcc = 0   # Global highest accuracy
 
     # List accuracy using no features
-    accNoFeat = evalFunc()
+    accNoFeat = featEvalFunc()
     print(f"Using no features and \"random\" evaluation, I get an accuracy of {accNoFeat}%")
     globalHighAcc = accNoFeat
 
@@ -31,7 +36,7 @@ def forwardSelection(numFeatures):
         for j in range(len(features)):
             # Pass this current feature + previous best into the eval function
             currFeatures = comboFeatures + [features[j]]
-            acc = evalFunc()
+            acc = featEvalFunc()
 
             # Print trace
             print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
@@ -67,7 +72,7 @@ def backwardElimination(numFeatures):
     globalHighAcc = 0   # Global highest accuracy
 
     # List accuracy using no features
-    accNoFeat = evalFunc()
+    accNoFeat = featEvalFunc()
     print(f"Using no features and \"random\" evaluation, I get an accuracy of {accNoFeat}%")
     globalHighAcc = accNoFeat
 
@@ -86,7 +91,7 @@ def backwardElimination(numFeatures):
         if i == 0:
             currFeatures = comboFeatures[:]
             # Pass this set of features into the eval function
-            acc = evalFunc()
+            acc = featEvalFunc()
 
             if acc > highestAcc:
                 highestAcc = acc
@@ -101,7 +106,7 @@ def backwardElimination(numFeatures):
                 currFeatures = comboFeatures[:]
                 del currFeatures[j]
                 # Pass this set of features into the eval function
-                acc = evalFunc()
+                acc = featEvalFunc()
 
                 # Print trace
                 print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
@@ -150,16 +155,54 @@ def featureSearch(numFeatures, algChoice):
 
     return features
 
-# Nearest-Neighbor Classifier: Classifies points based on distance from neighbors
-def nn_classifier(numFeatures, algChoice):
-    # Call feature search function and get best features and accuracy
-    features = featureSearch(numFeatures, algChoice)
+# Train the model (however NN is a lazy learner so there's not much to train)
+def train(training_data):
+    # Normalize feature vector
+    # Loop for as many columns
+    for i in range(1, len(training_data[0])):
+        featureCol = training_data[:,i]
+        
+        # Normalize (Min-Max Normalization) to a range of [0-1]
+        normalizedCol = (featureCol - featureCol.min()) / (featureCol.max() - featureCol.min())
+        # Assign changes
+        training_data[:,i] = normalizedCol
+        
     return
+
+# Use the model
+def test(test_instance, training_data):
+    # Calculate distances of current point from all neighbors
+    pred_class_label = None
+
+    return pred_class_label
+
+# Evaluate the accuracy of the classifier (Nearest Neighbor)
+def classEvalFunc(features, classifier, training_data):
+    acc = 0
+
+    return acc
+
+# Nearest-Neighbor Classifier: Classifies points based on distance from neighbors
+def nn_classifier(training_data, numFeatures, algChoice, test_instance):
+    # Call feature search function and get best features and accuracy
+    # Finding best features are not being used yet, still pass old code of numFeatures
+    features = featureSearch(numFeatures, algChoice)
+
+    # Train and test the model to find unknown point
+    train(training_data)
+    print(training_data)
+    pred_label = test(test_instance, training_data)
+
+    return pred_label
 
 # Main driver code
 def main():
     drayNetID = "dchow001"
     yangNetID = "ywang1245"
+
+    # Use numpy library to read text file, convert to 32-bit Float
+    large_data = np.loadtxt("large-test-dataset-2.txt", dtype=np.float32)
+    small_data = np.loadtxt("small-test-dataset-2-2.txt", dtype=np.float32)
 
     print(f"Welcome to {drayNetID} and {yangNetID} Feature Selection Algorithm.")
     numFeatures = int(input("\nPlease enter total number of features: "))
@@ -171,8 +214,9 @@ def main():
     print("\t3. Custom Search (not implemented yet)")
     algChoice = int(input("\nChoice: "))
 
-    # Call Nearest Neighbor (for now just testing search functions)
-    nn_classifier(numFeatures, algChoice)
+    # Call Classifier Evaluation Function (for now just testing classifier accuracy with specific feature subset)
+    # classEvalFunc()
+    nn_classifier(small_data, numFeatures, algChoice, 1)
 
 # Calls main
 if __name__ == "__main__":
