@@ -3,6 +3,7 @@
 #   - Use numpy library documentation for learning how to read in text files
 
 import numpy as np      # For distance calc and reading text file
+import time             # Timer for timting steps
 import random as rand   # For random evaluation values
 
 # Evaluation Function: Leave-one-out validation for checking accuracy
@@ -166,7 +167,7 @@ def train(training_data):
         normalizedCol = (featureCol - featureCol.min()) / (featureCol.max() - featureCol.min())
         # Assign changes
         training_data[:,i] = normalizedCol
-        
+
     return
 
 # Use the model
@@ -174,45 +175,65 @@ def test(test_instance, training_data):
     # Calculate distances of current point from all neighbors
     pred_class_label = None
     dists = []  # Store distances
+
+    test_instance_no_label = test_instance[1:].copy()
     
     index = 0
     # Loop through all instances of training data
     for x_i in training_data:
-        # Calculate distance of current point from test instance
-        dist = np.linalg.norm(test_instance - x_i, ord=2)
+        # Remove class label
+        x_i_no_label = x_i[1:].copy()
 
-        # Trace distance
-        print(f"The feature at index {index} has a distance of {dist} from test instance.")
+        # Calculate distance of current point from test instance
+        dist = np.linalg.norm(test_instance_no_label - x_i_no_label, ord=2)
 
         # Add distance and current index to list
-        dists.append(dist, index)
+        dists.append((dist, index))
         index += 1
 
     # Sort to find shortest distance
     dists.sort()
+    
     # Get index of nearest neighbor
-    nn_index = dists[1]
+    nn_index = dists[0][1]
     pred_class_label = training_data[nn_index][0]
-
-    # Trace prediced label
-    print(f"The predicted label is: {pred_class_label}")
 
     return pred_class_label
 
 # Evaluate the accuracy of the classifier (Nearest Neighbor)
-def classEvalFunc(features, classifier, training_data):
-    acc = 0
+def classEvalFunc(features, training_data):
+    acc = 0     # Accuracy of classifier
+
+    # Add index 0 to include labels of classes
+    featuresWithLabel = [0] + features
+
+    # Narrow down training data to only include subset of features
+    reduced_training_data = training_data[:, featuresWithLabel]
+
+    # Loop through all instances (and leave one out)
+    for i in range(len(reduced_training_data)):
+        # Get instance we are using as validation
+        leave_one_out = reduced_training_data[i]
+        # Make new feature vector with one left out
+        one_reduced_training_data = np.delete(reduced_training_data, i, axis=0)
+
+        # Call Nearest Neighbor
+        label = nn_classifier(one_reduced_training_data, leave_one_out)
+
+        # If label is correct, add to total correctness
+        if leave_one_out[0] == label:
+            acc += 1
+
+    # Calculate overall accuracy
+    acc = acc / len(reduced_training_data)
+    # Print trace
+    print(f"The overall accuracy using features {features}: {acc}")
 
     return acc
 
 # Nearest-Neighbor Classifier: Classifies points based on distance from neighbors
-def nn_classifier(training_data, numFeatures, algChoice, test_instance):
-    # Call feature search function and get best features and accuracy
-    # Finding best features are not being used yet, still pass old code of numFeatures
-    features = featureSearch(numFeatures, algChoice)
-
-    # Train and test the model to find unknown point
-    train(training_data)
+def nn_classifier(training_data, test_instance):
+    # Test the model to find unknown point
     pred_label = test(test_instance, training_data)
 
     return pred_label
@@ -221,10 +242,6 @@ def nn_classifier(training_data, numFeatures, algChoice, test_instance):
 def main():
     drayNetID = "dchow001"
     yangNetID = "ywang1245"
-
-    # Use numpy library to read text file, convert to 32-bit Float
-    large_data = np.loadtxt("large-test-dataset-2.txt", dtype=np.float32)
-    small_data = np.loadtxt("small-test-dataset-2-2.txt", dtype=np.float32)
 
     print(f"Welcome to {drayNetID} and {yangNetID} Feature Selection Algorithm.")
     numFeatures = int(input("\nPlease enter total number of features: "))
@@ -237,8 +254,45 @@ def main():
     algChoice = int(input("\nChoice: "))
 
     # Call Classifier Evaluation Function (for now just testing classifier accuracy with specific feature subset)
-    # classEvalFunc()
-    # nn_classifier(small_data, numFeatures, algChoice, 1)
+    smallFeatures = [3, 5, 7]       # Hard-coded subset of features for testing
+    largeFeatures = [1, 15, 27]     # Hard-coded subset of features for testing
+
+    # Use numpy library to read text file, convert to 32-bit Float
+    print("Load in small dataset:")
+    start = time.time()
+    small_data = np.loadtxt("small-test-dataset-2-2.txt", dtype=np.float32)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
+
+    print("Train the algorithm (normalize) with small dataset:")
+    start = time.time()
+    train(small_data)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
+
+    print("Evaluate/test the classifier using small dataset:")
+    start = time.time()
+    classEvalFunc(smallFeatures, small_data)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
+
+    print("\nLoad in large dataset:")
+    start = time.time()
+    large_data = np.loadtxt("large-test-dataset-2.txt", dtype=np.float32)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
+
+    print("Train the algorithm (normalize) with large dataset:")
+    start = time.time()
+    train(large_data)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
+
+    print("Evaluate/test the classifier using large dataset:")
+    start = time.time()
+    classEvalFunc(largeFeatures, large_data)
+    end = time.time()
+    print(f"\tTime: {end - start:.2f} seconds")
 
 # Calls main
 if __name__ == "__main__":
