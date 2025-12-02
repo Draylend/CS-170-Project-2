@@ -343,7 +343,7 @@ def main():
     algChoice = int(input("\nChoice: "))
 
     # Print trace of dataset statistics
-    print(f"\nThis dataset has {numFeatures} (not including class label) with {numInstances} instances.")
+    print(f"\nThis dataset has {numFeatures} features (not including class label) with {numInstances} instances.")
     # Normalize data and print trace
     print("Normalizing data, please wait... done!")
     train(data)
