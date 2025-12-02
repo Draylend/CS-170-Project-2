@@ -5,6 +5,7 @@
 import numpy as np      # For distance calc and reading text file
 import time             # Timer for timting steps
 import random as rand   # For random evaluation values
+import matplotlib.pyplot as plt
 
 # Evaluate the accuracy of the classifier
 def evalFunc(features, training_data):
@@ -229,6 +230,93 @@ def nn_classifier(training_data, test_instance):
 
     return pred_label
 
+def plotFeatures(data):
+    # If using the small dataset
+    if len(data) == 100:
+        feature3 = data[:, 3]
+        feature5 = data[:, 5]
+        classes = data[:, 0]
+
+        x_class1 = [x for x, c in zip(feature3, classes) if c == int(1)]
+        y_class1 = [y for y, c in zip(feature5, classes) if c == int(1)]
+
+        x_class2 = [x for x, c in zip(feature3, classes) if c == int(2)]
+        y_class2 = [y for y, c in zip(feature5, classes) if c == int(2)]
+
+        # Plot each class with different color/marker
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+
+        plt.xlabel("Feature 3")
+        plt.ylabel("Feature 5")
+        plt.title("Small Dataset Scatterplot (good separability)")
+        plt.legend()
+        plt.show()
+
+        feature1 = data[:, 1]
+        feature2 = data[:, 2]
+
+        x_class1 = [x for x, c in zip(feature1, classes) if c == int(1)]
+        y_class1 = [y for y, c in zip(feature2, classes) if c == int(1)]
+
+        x_class2 = [x for x, c in zip(feature1, classes) if c == int(2)]
+        y_class2 = [y for y, c in zip(feature2, classes) if c == int(2)]
+
+        # Plot each class with different color/marker
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+
+        plt.xlabel("Feature 1")
+        plt.ylabel("Feature 2")
+        plt.title("Small Dataset Scatterplot (bad separability)")
+        plt.legend()
+        plt.show()
+    # If using the titanic dataset
+    elif len(data) == 714:
+        return
+    # If using the large dataset
+    else:
+        feature1 = data[:, 1]
+        feature27 = data[:, 27]
+        classes = data[:, 0]
+
+        x_class1 = [x for x, c in zip(feature1, classes) if c == int(1)]
+        y_class1 = [y for y, c in zip(feature27, classes) if c == int(1)]
+
+        x_class2 = [x for x, c in zip(feature1, classes) if c == int(2)]
+        y_class2 = [y for y, c in zip(feature27, classes) if c == int(2)]
+
+        # Plot each class with different color/marker
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+
+        plt.xlabel("Feature 1")
+        plt.ylabel("Feature 27")
+        plt.title("Large Scatterplot (good separability)")
+        plt.legend()
+        plt.show()
+
+        feature3 = data[:, 3]
+        feature24 = data[:, 24]
+        classes = data[:, 0]
+
+        x_class1 = [x for x, c in zip(feature3, classes) if c == int(1)]
+        y_class1 = [y for y, c in zip(feature24, classes) if c == int(1)]
+
+        x_class2 = [x for x, c in zip(feature3, classes) if c == int(2)]
+        y_class2 = [y for y, c in zip(feature24, classes) if c == int(2)]
+
+        # Plot each class with different color/marker
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+
+        plt.xlabel("Feature 3")
+        plt.ylabel("Feature 24")
+        plt.title("Large Scatterplot (bad separability)")
+        plt.legend()
+        plt.show()
+    return
+
 # Main driver code
 def main():
     drayNetID = "dchow001"
@@ -261,7 +349,9 @@ def main():
     train(data)
 
     print("\nRunning Nearest Neighbor now...")
-    featureSearch(numFeatures, algChoice, data)
+    #featureSearch(numFeatures, algChoice, data)
+
+    plotFeatures(data)
 
 # Calls main
 if __name__ == "__main__":
