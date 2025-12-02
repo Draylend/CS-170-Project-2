@@ -42,7 +42,7 @@ def forwardSelection(numFeatures, training_data):
 
     # List accuracy using no features
     accNoFeat = evalFunc([], training_data)
-    print(f"Using no features for evaluation, I get an accuracy of {accNoFeat}%")
+    print(f"Using no features (default rate) and using \"leave-one-out\", I get an accuracy of {accNoFeat:.2%}")
     globalHighAcc = accNoFeat
 
     # This simulates the array of features we have
@@ -62,7 +62,7 @@ def forwardSelection(numFeatures, training_data):
             acc = evalFunc(currFeatures, training_data)
 
             # Print trace
-            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
+            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
 
             # If a new high accuracy, record feature index (column)
             if acc > highestAcc:
@@ -71,7 +71,7 @@ def forwardSelection(numFeatures, training_data):
         
         # Print trace
         currFeatures = comboFeatures + [features[bestFeatIndex]]
-        print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+        print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
 
         # If this combination of feature yielded global highest accuracy, record it
         if highestAcc > globalHighAcc:
@@ -86,7 +86,7 @@ def forwardSelection(numFeatures, training_data):
         # Remove feature/column from possible combinations
         del features[bestFeatIndex]
 
-    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc}%")
+    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc:.2%}")
     return globalBestfeatures
 
 # Greedy Algorithm: Remove one feature at a time
@@ -96,7 +96,7 @@ def backwardElimination(numFeatures, training_data):
 
     # List accuracy using no features
     accNoFeat = evalFunc([], training_data)
-    print(f"Using no features for evaluation, I get an accuracy of {accNoFeat}%")
+    print(f"Using no features (default rate) and using \"leave-one-out\", I get an accuracy of {accNoFeat:.2%}")
     globalHighAcc = accNoFeat
 
     # This simulates the array of features we have
@@ -120,8 +120,8 @@ def backwardElimination(numFeatures, training_data):
                 highestAcc = acc
 
             # Print trace
-            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
-            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
+            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
         else:
             # Loop through all combinations
             for j in range(len(featuresToRemove)):
@@ -132,7 +132,7 @@ def backwardElimination(numFeatures, training_data):
                 acc = evalFunc(currFeatures, training_data)
 
                 # Print trace
-                print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
+                print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
 
                 # If a new high accuracy, record feature index (column)
                 if acc > highestAcc:
@@ -142,7 +142,7 @@ def backwardElimination(numFeatures, training_data):
             # Print trace
             currFeatures = comboFeatures[:]
             del currFeatures[bestFeatIndex]
-            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
 
             # After all combinations, record best feature grouping
             del comboFeatures[bestFeatIndex]
@@ -157,7 +157,7 @@ def backwardElimination(numFeatures, training_data):
         else:
             print("(Warning! Accuracy has decreased!)")
 
-    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc}%")
+    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc:.2%}")
     return globalBestfeatures
 
 # Custom Search for Extra Credit (implement at the end)
@@ -234,28 +234,34 @@ def main():
     drayNetID = "dchow001"
     yangNetID = "ywang1245"
 
-    small_data = np.loadtxt("small-test-dataset-2-2.txt", dtype=np.float32)
-    train(small_data)   # Normalize
-
-    large_data = np.loadtxt("large-test-dataset-2.txt", dtype=np.float32)
-    train(large_data)   # Normalize
-
-    titanic_data = np.loadtxt("titanic clean.txt", dtype=np.float32)
-    train(small_data)   # Normalize
-
-    # Get the number of features
-    numFeatures = len(large_data[0]) - 1
-
     print(f"Welcome to {drayNetID} and {yangNetID} Feature Selection Algorithm.")
 
+    # Retrieve file name
+    file_name = str(input("Type in the name of the file to test: "))
+
+    # Load in data
+    data = np.loadtxt(file_name, dtype=np.float32)
+
+    # Get the number of features
+    numFeatures = len(data[0]) - 1
+    # Number of instances
+    numInstances = len(data)
+
     # Ask user to choose algorithm choice for feature selection
-    print("Type the number of the algorithm you want to run:")
+    print("\nType the number of the algorithm you want to run:")
     print("\t1. Forward Selection")
     print("\t2. Backward Elimination")
     print("\t3. Custom Search (not implemented yet)")
     algChoice = int(input("\nChoice: "))
 
-    featureSearch(numFeatures, algChoice, large_data)
+    # Print trace of dataset statistics
+    print(f"\nThis dataset has {numFeatures} (not including class label) with {numInstances} instances.")
+    # Normalize data and print trace
+    print("Normalizing data, please wait... done!")
+    train(data)
+
+    print("\nRunning Nearest Neighbor now...")
+    featureSearch(numFeatures, algChoice, data)
 
 # Calls main
 if __name__ == "__main__":
