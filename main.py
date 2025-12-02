@@ -6,24 +6,46 @@ import numpy as np      # For distance calc and reading text file
 import time             # Timer for timting steps
 import random as rand   # For random evaluation values
 
-# Evaluation Function: Leave-one-out validation for checking accuracy
-def featEvalFunc():
-    # Stub function - only returns random value
-    val = rand.random() * 100
-    accuracy = round(val, 2)
-    return accuracy
+# Evaluate the accuracy of the classifier
+def evalFunc(features, training_data):
+    acc = 0     # Accuracy of classifier
+
+    # Add index 0 to include labels of classes
+    featuresWithLabel = [0] + features
+
+    # Narrow down training data to only include subset of features
+    reduced_training_data = training_data[:, featuresWithLabel]
+
+    # Loop through all instances (and leave one out)
+    for i in range(len(reduced_training_data)):
+        # Get instance we are using as validation
+        leave_one_out = reduced_training_data[i]
+        # Make new feature vector with one left out
+        one_reduced_training_data = np.delete(reduced_training_data, i, axis=0)
+
+        # Call Nearest Neighbor
+        label = nn_classifier(one_reduced_training_data, leave_one_out)
+
+        # If label is correct, add to total correctness
+        if leave_one_out[0] == label:
+            acc += 1
+
+    # Calculate overall accuracy
+    acc = acc / len(reduced_training_data)
+
+    return acc
 
 # Greedy Algorithm: Add one feature at a time
-def forwardSelection(numFeatures):
+def forwardSelection(numFeatures, training_data):
     globalBestfeatures = []   # Global best set of features
     globalHighAcc = 0   # Global highest accuracy
 
     # List accuracy using no features
-    accNoFeat = featEvalFunc()
-    print(f"Using no features and \"random\" evaluation, I get an accuracy of {accNoFeat}%")
+    accNoFeat = evalFunc([], training_data)
+    print(f"Using no features (default rate) and using \"leave-one-out\", I get an accuracy of {accNoFeat:.2%}")
     globalHighAcc = accNoFeat
 
-    # This simulates the array of features we have (replace later)
+    # This simulates the array of features we have
     features = [i for i in range(1, numFeatures+1)]
     comboFeatures = []   # Local best set of features
 
@@ -37,10 +59,10 @@ def forwardSelection(numFeatures):
         for j in range(len(features)):
             # Pass this current feature + previous best into the eval function
             currFeatures = comboFeatures + [features[j]]
-            acc = featEvalFunc()
+            acc = evalFunc(currFeatures, training_data)
 
             # Print trace
-            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
+            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
 
             # If a new high accuracy, record feature index (column)
             if acc > highestAcc:
@@ -49,7 +71,7 @@ def forwardSelection(numFeatures):
         
         # Print trace
         currFeatures = comboFeatures + [features[bestFeatIndex]]
-        print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+        print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
 
         # If this combination of feature yielded global highest accuracy, record it
         if highestAcc > globalHighAcc:
@@ -64,20 +86,20 @@ def forwardSelection(numFeatures):
         # Remove feature/column from possible combinations
         del features[bestFeatIndex]
 
-    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc}%")
+    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc:.2%}")
     return globalBestfeatures
 
 # Greedy Algorithm: Remove one feature at a time
-def backwardElimination(numFeatures):
+def backwardElimination(numFeatures, training_data):
     globalBestfeatures = []   # Global best set of features
     globalHighAcc = 0   # Global highest accuracy
 
     # List accuracy using no features
-    accNoFeat = featEvalFunc()
-    print(f"Using no features and \"random\" evaluation, I get an accuracy of {accNoFeat}%")
+    accNoFeat = evalFunc([], training_data)
+    print(f"Using no features (default rate) and using \"leave-one-out\", I get an accuracy of {accNoFeat:.2%}")
     globalHighAcc = accNoFeat
 
-    # This simulates the array of features we have (replace later)
+    # This simulates the array of features we have
     featuresToRemove = [i for i in range(1, numFeatures+1)]
     comboFeatures = [i for i in range(1, numFeatures+1)]   # Start with all features
     globalBestfeatures = comboFeatures
@@ -92,14 +114,14 @@ def backwardElimination(numFeatures):
         if i == 0:
             currFeatures = comboFeatures[:]
             # Pass this set of features into the eval function
-            acc = featEvalFunc()
+            acc = evalFunc(currFeatures, training_data)
 
             if acc > highestAcc:
                 highestAcc = acc
 
             # Print trace
-            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
-            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+            print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
+            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
         else:
             # Loop through all combinations
             for j in range(len(featuresToRemove)):
@@ -107,10 +129,10 @@ def backwardElimination(numFeatures):
                 currFeatures = comboFeatures[:]
                 del currFeatures[j]
                 # Pass this set of features into the eval function
-                acc = featEvalFunc()
+                acc = evalFunc(currFeatures, training_data)
 
                 # Print trace
-                print(f"\tUsing feature(s) {currFeatures} accuracy is {acc}%")
+                print(f"\tUsing feature(s) {currFeatures} accuracy is {acc:.2%}")
 
                 # If a new high accuracy, record feature index (column)
                 if acc > highestAcc:
@@ -120,7 +142,7 @@ def backwardElimination(numFeatures):
             # Print trace
             currFeatures = comboFeatures[:]
             del currFeatures[bestFeatIndex]
-            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc}%")
+            print(f"Feature set {currFeatures} was best, accuracy is {highestAcc:.2%}")
 
             # After all combinations, record best feature grouping
             del comboFeatures[bestFeatIndex]
@@ -135,7 +157,7 @@ def backwardElimination(numFeatures):
         else:
             print("(Warning! Accuracy has decreased!)")
 
-    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc}%")
+    print(f"\nFinished search!!! The best feature subset is {globalBestfeatures}, which has an accuracy of {globalHighAcc:.2%}")
     return globalBestfeatures
 
 # Custom Search for Extra Credit (implement at the end)
@@ -143,14 +165,14 @@ def customSearch():
     return
 
 # Select the set of features that yield best results based on accuracy
-def featureSearch(numFeatures, algChoice):
+def featureSearch(numFeatures, algChoice, training_data):
     # Choose search algorithm based on user choice
     if algChoice == 1:
-        features = forwardSelection(numFeatures)
+        features = forwardSelection(numFeatures, training_data)
     elif algChoice == 2:
-        features = backwardElimination(numFeatures)
+        features = backwardElimination(numFeatures, training_data)
     elif algChoice == 3:
-        features = customSearch(numFeatures)
+        features = customSearch(numFeatures, training_data)
     else:
         print("Error. Not a valid algorithm choice.")
 
@@ -200,37 +222,6 @@ def test(test_instance, training_data):
 
     return pred_class_label
 
-# Evaluate the accuracy of the classifier (Nearest Neighbor)
-def classEvalFunc(features, training_data):
-    acc = 0     # Accuracy of classifier
-
-    # Add index 0 to include labels of classes
-    featuresWithLabel = [0] + features
-
-    # Narrow down training data to only include subset of features
-    reduced_training_data = training_data[:, featuresWithLabel]
-
-    # Loop through all instances (and leave one out)
-    for i in range(len(reduced_training_data)):
-        # Get instance we are using as validation
-        leave_one_out = reduced_training_data[i]
-        # Make new feature vector with one left out
-        one_reduced_training_data = np.delete(reduced_training_data, i, axis=0)
-
-        # Call Nearest Neighbor
-        label = nn_classifier(one_reduced_training_data, leave_one_out)
-
-        # If label is correct, add to total correctness
-        if leave_one_out[0] == label:
-            acc += 1
-
-    # Calculate overall accuracy
-    acc = acc / len(reduced_training_data)
-    # Print trace
-    print(f"The overall accuracy using features {features}: {acc}")
-
-    return acc
-
 # Nearest-Neighbor Classifier: Classifies points based on distance from neighbors
 def nn_classifier(training_data, test_instance):
     # Test the model to find unknown point
@@ -244,56 +235,44 @@ def main():
     yangNetID = "ywang1245"
 
     print(f"Welcome to {drayNetID} and {yangNetID} Feature Selection Algorithm.")
-    numFeatures = int(input("\nPlease enter total number of features: "))
+
+    # Retrieve file name
+    file_name = str(input("Type in the name of the file to test: "))
+
+    # Load in data
+    data = np.loadtxt(file_name, dtype=np.float32)
+
+    # Get the number of features
+    numFeatures = len(data[0]) - 1
+    # Number of instances
+    numInstances = len(data)
 
     # Ask user to choose algorithm choice for feature selection
-    print("Type the number of the algorithm you want to run:")
+    print("\nType the number of the algorithm you want to run:")
     print("\t1. Forward Selection")
     print("\t2. Backward Elimination")
     print("\t3. Custom Search (not implemented yet)")
     algChoice = int(input("\nChoice: "))
 
-    # Call Classifier Evaluation Function (for now just testing classifier accuracy with specific feature subset)
-    smallFeatures = [3, 5, 7]       # Hard-coded subset of features for testing
-    largeFeatures = [1, 15, 27]     # Hard-coded subset of features for testing
+    # Print trace of dataset statistics
+    print(f"\nThis dataset has {numFeatures} (not including class label) with {numInstances} instances.")
+    # Normalize data and print trace
+    print("Normalizing data, please wait... done!")
+    train(data)
 
-    # Use numpy library to read text file, convert to 32-bit Float
-    print("Load in small dataset:")
-    start = time.time()
-    small_data = np.loadtxt("small-test-dataset-2-2.txt", dtype=np.float32)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
-
-    print("Train the algorithm (normalize) with small dataset:")
-    start = time.time()
-    train(small_data)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
-
-    print("Evaluate/test the classifier using small dataset:")
-    start = time.time()
-    classEvalFunc(smallFeatures, small_data)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
-
-    print("\nLoad in large dataset:")
-    start = time.time()
-    large_data = np.loadtxt("large-test-dataset-2.txt", dtype=np.float32)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
-
-    print("Train the algorithm (normalize) with large dataset:")
-    start = time.time()
-    train(large_data)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
-
-    print("Evaluate/test the classifier using large dataset:")
-    start = time.time()
-    classEvalFunc(largeFeatures, large_data)
-    end = time.time()
-    print(f"\tTime: {end - start:.2f} seconds")
+    print("\nRunning Nearest Neighbor now...")
+    featureSearch(numFeatures, algChoice, data)
 
 # Calls main
 if __name__ == "__main__":
     main()
+
+# Reporting Results
+# Group: Draylend Chow - dchow001 - Session 21, Yang Wang - ywang1245 - Session 21
+# DatasetID: ???
+# Small Dataset Results:
+#   - Forward: Feature Subset: {5, 3}, Acc: 0.92
+#   - Backward:  Feature Subset: {3, 5}, Acc: 0.92
+# Large Dataset Results:
+#   - Forward:  Feature Subset: {27, 1}, Acc: 0.955
+#   - Backward:  Feature Subset: {27}, Acc: 0.847
