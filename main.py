@@ -349,7 +349,7 @@ def main():
     train(data)
 
     print("\nRunning Nearest Neighbor now...")
-    #featureSearch(numFeatures, algChoice, data)
+    featureSearch(numFeatures, algChoice, data)
 
     plotFeatures(data)
 
