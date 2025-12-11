@@ -244,8 +244,8 @@ def plotFeatures(data):
         y_class2 = [y for y, c in zip(feature5, classes) if c == int(2)]
 
         # Plot each class with different color/marker
-        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
-        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class 1")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class 2")
 
         plt.xlabel("Feature 3")
         plt.ylabel("Feature 5")
@@ -263,8 +263,8 @@ def plotFeatures(data):
         y_class2 = [y for y, c in zip(feature2, classes) if c == int(2)]
 
         # Plot each class with different color/marker
-        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
-        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class 1")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class 2")
 
         plt.xlabel("Feature 1")
         plt.ylabel("Feature 2")
@@ -287,8 +287,8 @@ def plotFeatures(data):
         y_class2 = [y for y, c in zip(feature27, classes) if c == int(2)]
 
         # Plot each class with different color/marker
-        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
-        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class 1")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class 2")
 
         plt.xlabel("Feature 1")
         plt.ylabel("Feature 27")
@@ -307,8 +307,8 @@ def plotFeatures(data):
         y_class2 = [y for y, c in zip(feature24, classes) if c == int(2)]
 
         # Plot each class with different color/marker
-        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class A")
-        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class B")
+        plt.scatter(x_class1, y_class1, c="blue", marker="o", label="Class 1")
+        plt.scatter(x_class2, y_class2, c="red", marker="s", label="Class 2")
 
         plt.xlabel("Feature 3")
         plt.ylabel("Feature 24")
